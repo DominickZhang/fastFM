@@ -3,8 +3,8 @@
 
 import numpy as np
 import scipy.sparse as sp
-from fastFM import bpr
-from fastFM import utils
+from fastFM2 import bpr
+from fastFM2 import utils
 
 
 def get_test_problem(task='regression'):

@@ -1,13 +1,13 @@
 # Author: Immanuel Bayer
 # License: BSD 3 clause
 
-from fastFM.datasets import make_user_item_regression
+from fastFM2.datasets import make_user_item_regression
 from sklearn.metrics import mean_squared_error
 import scipy.sparse as sp
 
 
 def test_make_user_item_regression():
-    from fastFM.mcmc import FMRegression
+    from fastFM2.mcmc import FMRegression
     X, y, coef = make_user_item_regression(label_stdev=0)
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(

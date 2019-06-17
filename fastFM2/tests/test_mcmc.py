@@ -4,8 +4,8 @@
 import numpy as np
 import scipy.sparse as sp
 from sklearn import metrics
-from fastFM import mcmc
-from fastFM.datasets import make_user_item_regression
+from fastFM2 import mcmc
+from fastFM2.datasets import make_user_item_regression
 from sklearn.metrics import mean_squared_error
 from sklearn.utils.testing import assert_almost_equal, assert_array_equal
 

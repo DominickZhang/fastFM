@@ -4,7 +4,7 @@
 import numpy as np
 import scipy.sparse as sp
 from sklearn import metrics
-from fastFM import als
+from fastFM2 import als
 
 
 def get_test_problem(task='regression'):

@@ -2,7 +2,7 @@
 # License: BSD 3 clause
 
 import numpy as np
-from fastFM.utils import kendall_tau
+from fastFM2.utils import kendall_tau
 
 
 def test_ffm_vector_kendall_tau():
