@@ -4,26 +4,26 @@ from Cython.Distutils import build_ext
 import numpy
 
 ext_modules = [
-    Extension('ffm', ['fastFM/ffm.pyx'],
-              libraries=['m', 'fastfm'],
-              library_dirs=['fastFM/', 'fastFM-core/bin/'],
-              include_dirs=['fastFM/', 'fastFM-core/include/',
+    Extension('ffm', ['fastFM2/ffm.pyx'],
+              libraries=['m', 'fastfm2'],
+              library_dirs=['fastFM2/', 'fastFM-core/bin/'],
+              include_dirs=['fastFM2/', 'fastFM-core/include/',
                             'fastFM-core/externals/CXSparse/Include/',
               numpy.get_include()])]
 
 setup(
-    name='fastFM',
+    name='fastFM2',
     cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
 
-    packages=['fastFM'],
+    packages=['fastFM2'],
 
-    package_data={'fastFM': ['fastFM/*.pxd']},
+    package_data={'fastFM2': ['fastFM2/*.pxd']},
 
-    version='0.2.11',
-    url='http://ibayer.github.io/fastFM',
-    author='Immanuel Bayer',
-    author_email='immanuel.bayer@uni-konstanz.de',
+    version='0.3.0',
+    url='https://github.com/DominickZhang/fastFM',
+    author='Jinnian Zhang',
+    author_email='jinnian.zhang@wisc.edu',
 
     # Choose your license
     license='BSD',

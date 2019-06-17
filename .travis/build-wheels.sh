@@ -31,9 +31,9 @@ done
 
 # Install packages and test
 for PYBIN in /opt/python/*/bin; do
-    "${PYBIN}/pip" install fastFM --no-index -f /io/wheelhouse
+    "${PYBIN}/pip" install fastFM2 --no-index -f /io/wheelhouse
     "${PYBIN}/pip" install nose
-    (cd "$HOME"; "${PYBIN}/nosetests" /io/fastFM/tests)
+    (cd "$HOME"; "${PYBIN}/nosetests" /io/fastFM2/tests)
 done
 
 mv /io/wheelhouse /io/dist
