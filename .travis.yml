@@ -1,95 +1,69 @@
 language: c
-
 matrix:
   include:
-    #- os: osx
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="2.7"
-    #    - DEPLOYABLE="true"
-    #- os: osx
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="3.5"
-    #    - DEPLOYABLE="true"
-    #- os: osx
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="3.6"
-    #    - DEPLOYABLE="true"
-    #- os: linux
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="2.7"
-    #- os: linux
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="3.5"
-    #- os: linux
-    #  env:
-    #    - TRAVIS_PYTHON_VERSION="3.6"
-    - services: docker
-      sudo: required
-      env:
-        - DEPLOY_TARGET="manylinux1"
-        - DEPLOYABLE="true"
-
+  - services: docker
+    sudo: required
+    env:
+    - DEPLOY_TARGET="manylinux1"
+    - DEPLOYABLE="true"
 dist: trusty
-
 before_install:
-    - |
-      # Skip if manylinux1
-      if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
-        echo "Skip before_install step..."
+- |
+  # Skip if manylinux1
+  if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
+    echo "Skip before_install step..."
+  else
+    # fastFM-core depends on cblas
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y libopenblas-dev; fi
+    if [[ "$TRAVIS_PYTHON_VERSION" =~ "^2" ]]; then
+      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
       else
-        # fastFM-core depends on cblas
-        if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y libopenblas-dev; fi
-        if [[ "$TRAVIS_PYTHON_VERSION" =~ "^2" ]]; then
-          if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-          else
-            wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh;
-          fi
-        else
-          if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-          else
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-          fi
-        fi
-        bash miniconda.sh -b -p $HOME/miniconda
-        export PATH="$HOME/miniconda/bin:$PATH"
-        hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        # Useful for debugging any issues with conda
-        conda info -a
-        conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION cython numpy pandas scipy scikit-learn nose
-        source activate test-environment
+        wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh;
       fi
-
+    else
+      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+      fi
+    fi
+    bash miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    hash -r
+    conda config --set always_yes yes --set changeps1 no
+    conda update -q conda
+    # Useful for debugging any issues with conda
+    conda info -a
+    conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION cython numpy pandas scipy scikit-learn nose
+    source activate test-environment
+  fi
 install:
-    - |
-      git submodule update --init --recursive
-      if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
-        :
-      else
-        make
-        python setup.py bdist_wheel
-        pip install dist/*.whl
-      fi
-
+- |
+  git submodule update --init --recursive
+  if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
+    :
+  else
+    make
+    python setup.py bdist_wheel
+    pip install dist/*.whl
+  fi
 script:
-    - |
-      if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
-        #build for 64-bit
-        docker run --rm -v `pwd`:/io quay.io/pypa/manylinux1_x86_64 /io/.travis/build-wheels.sh
-      else
-        nosetests
-      fi
-
+- |
+  if [ "$DEPLOY_TARGET" = "manylinux1" ]; then
+    #build for 64-bit
+    docker run --rm -v `pwd`:/io quay.io/pypa/manylinux1_x86_64 /io/.travis/build-wheels.sh
+  else
+    nosetests
+  fi
 deploy:
   provider: releases
   api_key:
-    secure: "EhNUDLLqGnjBV1TsEd4cvhirEfxG4ri3mhHUgUWWspL4Gxvj5qW2m79cSUfgTVbEklp9C7Muobhd6hRKtI5cAP+E8WewD3CxW0yhjHaay7+5smLUFOOsiCnIVC4TwaQtu/zrx1ycIG+R+c//2R9CORUUbuXHYf+d00VehVwCOnIfEpFvRHG17iX9agjZSbTKJPqM68v9aT71AvMTzVdRqxNt7l4+BbgzDuHnSeLmeTNaotMxSVmXgjrQPJILeel3dcgzs+KuIVufw0Fzeq81gaZom3QjMMd8Rey7n4jMZ8hCTf2Nf0FCbqexxQjARNygmfnaLzr04d/vw4CE0lT8y0kXtxlNaPPERNrRHX8dQKzjvP9crszX0zO4Ogs+zRiyCAZakFOF/OGQEUbjhluBBSTeRtp9JNMMF8G9WzItqfCRgISAlkcUt25G5rvngP8nVL1ZqjeTzdZ2IL/RLTXaMyqxzXY5j/tqScZug7Y4ldBTBLAxYko8DR4oUh6+7BMTdB78V8eZCCbrcl2SOIX1a1JFCUP5XMYiBnRYwubLqXgQW8pZ01dIYMtynAawf+LimShDZHXsF2/goOuCLE8fciTaH4KWsE3rNLhUZjEdcR3allBKpk0euOk8pGXSIFsfpVX8+0hAel2X8VfoOy/vmn9uprOjxFigIDA3UV0xss8="
+    secure: E4VV1klaBDtsOaas+EDad/9gkzHbmajD+zfAR2/oRu2jqnby54JeMfklvQ63YzjMdQkd0XJVOvuiqEMwZhNKYYDMCBrqHBuGNr8tQwJpVrWcVv4TynlOXCTolyo6JWYUEwHtWVRex/8DfehsrQbrH/Tld+/FZTUcBuliXFyWD0gPI3gNjYSfbzaU6Lr1gU3T/XU+AsbR9S7QLug9zgtjYRAu5lDh5wKQcNZzYuQO1B3bsSa70cEYzf5WBk7nCIBKDMyscogFsJD1VmdMjuxc+neJMkZeahz1Q4qLfp7BVKCIDOBj+JCDqU9x2lQjaXQ2CG4GDPIW9RIW123qyTN1lSIpGMxQNuQgbIZ+19jSmPwf5R1TR8E+cUR6ZbZ+GNuK1O1hvtKYL+a8H9kyqoNDQgnT0rn5jgjmfXmT9+uQG1QuMsLnsEOdAFgZy/DX4itNTLPbPgbPHhogjNtJQVelxjJxYU0fg0IK+G16fIZMtjFNXlSosz7EEXPKY16b+XysVodHf/JVVNSzlUxZECiQmiwrfUTv0jUG9FS9jVYz5alwXu5Q9siAUDgyNMwa8JN1q9gcFRcslu6dJGseswpRZOBgEvvKWW8TUjC2I5kIVbUlCnTbwDuafeJh2KMDoYm0Qttpv83yPGLDmS1FXAAA/Spynfobh3VbCu67LKDTR1A=
   file_glob: true
   file: dist/fastFM2-*.whl
   skip_cleanup: true
   on:
     tags: true
-    condision: $DEPLOYEABLE = "true"
+    repo: DominickZhang/fastFM
+    condision: $DEPLOYABLE = "true"
