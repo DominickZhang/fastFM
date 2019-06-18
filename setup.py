@@ -20,7 +20,7 @@ setup(
 
     package_data={'fastFM2': ['fastFM2/*.pxd']},
 
-    version='0.3.0',
+    version='0.3.1',
     url='https://github.com/DominickZhang/fastFM',
     author='Jinnian Zhang',
     author_email='jinnian.zhang@wisc.edu',
