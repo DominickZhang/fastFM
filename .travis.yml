@@ -1,6 +1,27 @@
 language: c
 matrix:
   include:
+  - os: osx
+    env:
+      - TRAVIS_PYTHON_VERSION="2.7"
+      - DEPLOYABLE="true"
+  - os: osx
+    env:
+      - TRAVIS_PYTHON_VERSION="3.5"
+      - DEPLOYABLE="true"
+  - os: osx
+    env:
+      - TRAVIS_PYTHON_VERSION="3.6"
+      - DEPLOYABLE="true"
+  - os: linux
+    env:
+      - TRAVIS_PYTHON_VERSION="2.7"
+  - os: linux
+    env:
+      - TRAVIS_PYTHON_VERSION="3.5"
+  - os: linux
+    env:
+      - TRAVIS_PYTHON_VERSION="3.6"
   - services: docker
     sudo: required
     env:
